@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security Operations</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <div class="brand">
+        <div class="mark">SO</div>
+        <div>
+          <div class="brand-title">Security Operations</div>
+          <div class="brand-subtitle">Enterprise Monitoring</div>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-item active" data-view="overview" title="Overview"><span class="icon">⌂</span><span>Overview</span></button>
+        <button class="nav-item" data-view="events" title="Events"><span class="icon">◇</span><span>Events</span></button>
+        <button class="nav-item" data-view="timeline" title="Timeline"><span class="icon">⏱</span><span>Timeline</span></button>
+        <button class="nav-item" data-view="setup" title="Setup"><span class="icon">＋</span><span>Setup</span></button>
+        <button class="nav-item" data-view="policy" title="Policy"><span class="icon">⚙</span><span>Policy</span></button>
+        <button class="nav-item" data-view="frigate" title="Frigate"><span class="icon">▣</span><span>Frigate</span></button>
+      </nav>
+      <div class="rail-foot">
+        <span id="systemStatus" class="status-dot"></span>
+        <span id="systemText">Connecting</span>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Overview</h1>
+          <p id="pageSubtitle">Live site state and AI-reviewed security activity.</p>
+        </div>
+        <div class="toolbar">
+          <select id="cameraSelect" aria-label="Camera"></select>
+          <button id="refreshButton" class="icon-button" title="Refresh">↻</button>
+        </div>
+      </header>
+
+      <section class="view active" id="overviewView">
+        <div class="summary-strip">
+          <div class="metric">
+            <span class="label">Open Alerts</span>
+            <strong id="openAlerts">0</strong>
+          </div>
+          <div class="metric">
+            <span class="label">Events Today</span>
+            <strong id="eventsToday">0</strong>
+          </div>
+          <div class="metric">
+            <span class="label">AI Mode</span>
+            <strong id="aiMode">Video</strong>
+          </div>
+          <div class="metric">
+            <span class="label">Camera</span>
+            <strong id="activeCamera">-</strong>
+          </div>
+        </div>
+
+        <section class="camera-wall-panel">
+          <div class="section-head">
+            <h2>Camera Overview</h2>
+            <span id="cameraWallCount" class="muted">0 cameras</span>
+          </div>
+          <div id="cameraWall" class="camera-wall"></div>
+        </section>
+
+        <div class="overview-grid">
+          <section class="live-panel">
+            <div class="section-head">
+              <h2>Live Camera</h2>
+              <span id="snapshotTime" class="muted">-</span>
+            </div>
+            <div class="live-frame">
+              <img id="liveImage" alt="Live camera frame">
+              <div id="liveFallback" class="empty hidden">No camera frame available</div>
+            </div>
+          </section>
+
+          <section class="alerts-panel">
+            <div class="section-head">
+              <h2>Priority Alerts</h2>
+              <span id="alertCount" class="muted">0</span>
+            </div>
+            <div id="alertList" class="list"></div>
+          </section>
+        </div>
+
+        <section>
+          <div class="section-head">
+            <h2>Recent AI Decisions</h2>
+            <span id="eventCount" class="muted">0</span>
+          </div>
+          <div id="decisionTable" class="table"></div>
+        </section>
+      </section>
+
+      <section class="view" id="eventsView">
+        <div class="section-head">
+          <h2>Event Review</h2>
+          <div class="segmented">
+            <button class="segment active" data-filter="all">All</button>
+            <button class="segment" data-filter="alert">Alerts</button>
+            <button class="segment" data-filter="event">Events</button>
+          </div>
+        </div>
+        <div id="eventReviewList" class="review-list"></div>
+      </section>
+
+      <section class="view" id="timelineView">
+        <div class="timeline-bar">
+          <label class="tl-filter-label">
+            <span>Camera</span>
+            <select id="timelineCameraSelect" aria-label="Filter by camera">
+              <option value="all">All cameras</option>
+            </select>
+          </label>
+          <div class="tl-range segmented" role="group" aria-label="Time range">
+            <button class="segment tl-range-btn" data-range="24h">24 h</button>
+            <button class="segment tl-range-btn active" data-range="7d">7 days</button>
+            <button class="segment tl-range-btn" data-range="30d">30 days</button>
+            <button class="segment tl-range-btn" data-range="all">All</button>
+          </div>
+          <div class="tl-range segmented" role="group" aria-label="Entry type">
+            <button class="segment tl-type-btn active" data-type="all">All</button>
+            <button class="segment tl-type-btn" data-type="alert">Alerts</button>
+            <button class="segment tl-type-btn" data-type="event">Events</button>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Activity Density</h2>
+          <span id="timelineCount" class="muted">0 events</span>
+        </div>
+        <div id="timelineChart" class="timeline-chart" aria-label="Event density chart"></div>
+
+        <div class="section-head" style="margin-top:16px;">
+          <h2>Event History</h2>
+        </div>
+        <div id="timelineList" class="timeline-list"></div>
+      </section>
+
+      <section class="view" id="setupView">
+        <section class="manage-cameras">
+          <div class="section-head">
+            <h2>Your cameras</h2>
+            <span id="manageCamerasCount" class="muted">0 cameras</span>
+          </div>
+          <div id="manageCamerasList" class="manage-cameras-list">
+            <div class="empty">Loading…</div>
+          </div>
+        </section>
+
+        <div class="wizard">
+          <div class="section-head">
+            <h2>Add a Camera</h2>
+            <span id="setupStatus" class="muted">Step 1 of 6</span>
+          </div>
+
+          <ol class="wizard-progress" id="wizardProgress">
+            <li class="wizard-progress-item active" data-stage="1"><span>1</span><strong>Stream</strong></li>
+            <li class="wizard-progress-item" data-stage="2"><span>2</span><strong>Profile</strong></li>
+            <li class="wizard-progress-item" data-stage="3"><span>3</span><strong>Location</strong></li>
+            <li class="wizard-progress-item" data-stage="4"><span>4</span><strong>Hours</strong></li>
+            <li class="wizard-progress-item" data-stage="5"><span>5</span><strong>Activity</strong></li>
+            <li class="wizard-progress-item" data-stage="6"><span>6</span><strong>Review</strong></li>
+          </ol>
+
+          <!-- Stage 1: Stream -->
+          <div class="wizard-stage active" data-stage="1">
+            <h3>Connect the camera</h3>
+            <p class="wizard-hint">Pick an existing camera to edit, or paste the RTSP URL of a new camera. We'll test the connection before continuing.</p>
+
+            <div class="segmented setup-mode" aria-label="Setup mode">
+              <button class="segment active" type="button" data-setup-mode="existing">Existing camera</button>
+              <button class="segment" type="button" data-setup-mode="new">New RTSP camera</button>
+            </div>
+
+            <div class="form-grid">
+              <label class="field existing-camera-field">
+                <span>Choose camera</span>
+                <select id="setupCameraSelect"></select>
+              </label>
+              <label class="field">
+                <span>Camera ID <small>(letters, numbers, underscores)</small></span>
+                <input id="setupCameraId" type="text" placeholder="front_door">
+              </label>
+              <label class="field rtsp-field">
+                <span>RTSP URL</span>
+                <input id="setupRtspUrl" type="text" placeholder="rtsp://user:password@host:554/stream">
+              </label>
+            </div>
+
+            <div class="rtsp-test-row">
+              <sl-button id="rtspTestButton" variant="primary">
+                <sl-icon slot="prefix" name="broadcast"></sl-icon>
+                Test connection
+              </sl-button>
+            </div>
+            <sl-alert id="rtspTestAlert" variant="neutral" open>
+              <sl-icon slot="icon" name="info-circle"></sl-icon>
+              <span id="rtspTestStatus">Click "Test connection" to verify the stream before continuing.</span>
+            </sl-alert>
+            <sl-card id="rtspTestPreview" class="rtsp-test-preview hidden">
+              <img id="rtspSnapshot" slot="image" alt="Camera snapshot preview">
+              <strong>Stream verified</strong>
+              <div class="rtsp-info">
+                <div><strong>Codec:</strong> <span id="rtspCodec">-</span></div>
+                <div><strong>Resolution:</strong> <span id="rtspResolution">-</span></div>
+              </div>
+            </sl-card>
+          </div>
+
+          <!-- Stage 2: Profile -->
+          <div class="wizard-stage" data-stage="2">
+            <h3>Pick a security profile</h3>
+            <p class="wizard-hint">Profiles bundle sensible defaults for similar places. Pick the one that best fits where this camera is installed.</p>
+            <div id="profileCards" class="profile-cards"></div>
+          </div>
+
+          <!-- Stage 3: Location -->
+          <div class="wizard-stage" data-stage="3">
+            <h3>Where is this camera?</h3>
+            <p class="wizard-hint">A short, human-friendly name shown in events and alerts.</p>
+            <div class="form-grid">
+              <label class="field">
+                <span>Location name</span>
+                <input id="setupLocation" type="text" placeholder="Front entrance, IT desk, parking lot">
+              </label>
+              <label class="field">
+                <span>Sensitivity</span>
+                <select id="setupSensitivity">
+                  <option value="low">Low — minimum alerts, less noise</option>
+                  <option value="medium" selected>Medium — balanced</option>
+                  <option value="high">High — alert on shorter activity</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- Stage 4: Working hours -->
+          <div class="wizard-stage" data-stage="4">
+            <h3>When is this place active?</h3>
+            <p class="wizard-hint">Anyone seen outside these hours will be flagged automatically.</p>
+            <label class="field toggle-field">
+              <span>Camera has working hours</span>
+              <input id="setupHoursEnabled" type="checkbox" checked>
+            </label>
+            <div id="workingHoursFields">
+              <fieldset class="day-fieldset">
+                <legend>Working days</legend>
+                <div class="day-grid" id="setupDayGrid">
+                  <label><input type="checkbox" value="Sun" checked> Sun</label>
+                  <label><input type="checkbox" value="Mon" checked> Mon</label>
+                  <label><input type="checkbox" value="Tue" checked> Tue</label>
+                  <label><input type="checkbox" value="Wed" checked> Wed</label>
+                  <label><input type="checkbox" value="Thu" checked> Thu</label>
+                  <label><input type="checkbox" value="Fri"> Fri</label>
+                  <label><input type="checkbox" value="Sat"> Sat</label>
+                </div>
+              </fieldset>
+              <div class="form-grid compact-grid">
+                <label class="field">
+                  <span>Timezone</span>
+                  <input id="setupTimezone" type="text" value="Asia/Jerusalem">
+                </label>
+                <label class="field">
+                  <span>Start</span>
+                  <input id="setupStartTime" type="time" value="09:00">
+                </label>
+                <label class="field">
+                  <span>End</span>
+                  <input id="setupEndTime" type="time" value="17:00">
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stage 5: Activity -->
+          <div class="wizard-stage" data-stage="5">
+            <h3>Tell us about the scene</h3>
+            <p class="wizard-hint">This helps the AI judge what's normal vs. suspicious. One short item per line.</p>
+            <div class="form-grid text-grid">
+              <label class="field">
+                <span>What usually happens here?</span>
+                <textarea id="setupNormalActivity" spellcheck="true" rows="4"></textarea>
+                <small class="field-hint" id="normalActivityHint">e.g. Employees walking through during the day. Visitors waiting at reception.</small>
+              </label>
+              <label class="field">
+                <span>What should be monitored?</span>
+                <textarea id="setupRisks" spellcheck="true" rows="4"></textarea>
+                <small class="field-hint" id="risksHint">e.g. After-hours presence. Loitering near equipment. Removing devices.</small>
+              </label>
+              <label class="field">
+                <span>Optional: describe what the camera sees</span>
+                <textarea id="setupDescription" spellcheck="true" rows="3" placeholder="Wide view of the lobby including the front door and reception desk."></textarea>
+              </label>
+            </div>
+          </div>
+
+          <!-- Stage 6: Review -->
+          <div class="wizard-stage" data-stage="6">
+            <h3>Review and save</h3>
+            <p class="wizard-hint">Quick summary of what we'll save. Click <strong>Save</strong> to apply.</p>
+            <div id="setupSummary" class="setup-summary empty">Generating preview…</div>
+
+            <details class="advanced-block">
+              <summary>Advanced settings (optional)</summary>
+              <div class="form-grid compact-grid">
+                <label class="field">
+                  <span>Tracked objects</span>
+                  <input id="setupTrackedObjects" type="text" value="person">
+                </label>
+                <label class="field">
+                  <span>Detect width</span>
+                  <input id="setupDetectWidth" type="number" min="320" max="4096" value="896">
+                </label>
+                <label class="field">
+                  <span>Detect height</span>
+                  <input id="setupDetectHeight" type="number" min="240" max="2160" value="512">
+                </label>
+                <label class="field">
+                  <span>FPS</span>
+                  <input id="setupFps" type="number" min="1" max="30" value="5">
+                </label>
+                <label class="field">
+                  <span>Retain days</span>
+                  <input id="setupRetainDays" type="number" min="1" max="365" value="7">
+                </label>
+                <label class="field">
+                  <span>Alert severity (1-5)</span>
+                  <input id="setupMinSeverity" type="number" min="1" max="5" value="3">
+                </label>
+                <label class="field">
+                  <span>Alert confidence</span>
+                  <input id="setupMinConfidence" type="number" min="0" max="1" step="0.05" value="0.70">
+                </label>
+                <label class="field toggle-field">
+                  <span>Recording enabled</span>
+                  <input id="setupRecordingEnabled" type="checkbox" checked>
+                </label>
+              </div>
+            </details>
+
+            <details class="advanced-block">
+              <summary>Show generated YAML</summary>
+              <div class="preview-grid">
+                <label class="field">
+                  <span>Camera AI policy</span>
+                  <textarea id="setupContextPreview" spellcheck="false" readonly></textarea>
+                </label>
+                <label class="field">
+                  <span>Frigate config preview</span>
+                  <textarea id="setupFrigatePreview" spellcheck="false" readonly></textarea>
+                </label>
+              </div>
+            </details>
+          </div>
+
+          <!-- Footer -->
+          <div class="wizard-footer">
+            <sl-button id="setupPrev" variant="default">
+              <sl-icon slot="prefix" name="chevron-left"></sl-icon>
+              Back
+            </sl-button>
+            <div class="wizard-footer-right">
+              <sl-button id="resetSetup" variant="text">Cancel</sl-button>
+              <sl-button id="setupNext" variant="primary">
+                Next
+                <sl-icon slot="suffix" name="chevron-right"></sl-icon>
+              </sl-button>
+              <sl-button id="saveSetup" variant="primary" hidden disabled>
+                <sl-icon slot="prefix" name="check-lg"></sl-icon>
+                Save configuration
+              </sl-button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden legacy elements retained so existing app.js refs don't crash. -->
+        <div hidden aria-hidden="true">
+          <input id="setupWorkingDays" type="text">
+          <select id="drawingType"><option value="mask">mask</option><option value="zone">zone</option></select>
+          <input id="drawingName" type="text">
+          <img id="setupSnapshot" alt="">
+          <canvas id="drawingCanvas"></canvas>
+          <div id="setupSnapshotFallback"></div>
+          <button id="finishDrawing" type="button"></button>
+          <button id="clearDrawings" type="button"></button>
+          <button id="generateSetup" type="button"></button>
+          <span id="drawingCount"></span>
+          <div id="drawingList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="policyView">
+        <div class="policy-layout">
+          <section>
+            <div class="section-head">
+              <h2>Camera Policy</h2>
+              <span id="policyCamera" class="muted">front_door.yaml</span>
+            </div>
+            <textarea id="policyEditor" spellcheck="false"></textarea>
+            <div class="policy-actions">
+              <span id="policyStatus" class="muted"></span>
+              <button id="savePolicy">Save Policy</button>
+            </div>
+          </section>
+          <aside class="policy-side">
+            <h2>Active Settings</h2>
+            <dl>
+              <dt>Profile</dt><dd id="policyProfile">-</dd>
+              <dt>Sensitivity</dt><dd id="policySensitivity">-</dd>
+              <dt>Working Hours</dt><dd id="policyHours">-</dd>
+              <dt>Location</dt><dd id="policyLocation">-</dd>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="frigateView">
+        <div class="config-layout">
+          <section>
+            <div class="section-head">
+              <h2>Frigate Configuration</h2>
+              <span class="muted">config.yaml</span>
+            </div>
+            <div class="quick-grid">
+              <label class="quick-field">
+                <span>Tracked objects</span>
+                <input id="trackedObjects" type="text" placeholder="person, car, keyboard">
+              </label>
+              <label class="quick-field compact">
+                <span>Global detection</span>
+                <input id="globalDetect" type="checkbox">
+              </label>
+              <label class="quick-field compact">
+                <span>Recording</span>
+                <input id="recordEnabled" type="checkbox">
+              </label>
+              <label class="quick-field compact">
+                <span>MQTT</span>
+                <input id="mqttEnabled" type="checkbox">
+              </label>
+            </div>
+            <textarea id="frigateEditor" spellcheck="false"></textarea>
+            <div class="policy-actions">
+              <span id="frigateStatus" class="muted"></span>
+              <div class="toolbar">
+                <button id="applyQuickConfig" type="button">Apply Quick Settings</button>
+                <button id="saveFrigateConfig" type="button">Save Frigate Config</button>
+              </div>
+            </div>
+          </section>
+          <aside class="policy-side">
+            <h2>Configuration Summary</h2>
+            <dl>
+              <dt>Cameras</dt><dd id="frigateCameras">-</dd>
+              <dt>Objects</dt><dd id="frigateObjects">-</dd>
+              <dt>Detect</dt><dd id="frigateDetect">-</dd>
+              <dt>Record</dt><dd id="frigateRecord">-</dd>
+              <dt>MQTT</dt><dd id="frigateMqtt">-</dd>
+            </dl>
+            <p class="side-note">Saving writes the Frigate YAML file and creates a backup beside it. Some Frigate changes require a Frigate restart.</p>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="eventModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-close></div>
+    <section class="modal-panel" aria-describedby="eventModalSummary">
+      <header class="modal-head">
+        <div>
+          <h2 id="eventModalTitle">Event Clip</h2>
+          <p id="eventModalSubtitle" class="muted">-</p>
+        </div>
+        <button id="closeEventModal" class="icon-button" type="button" aria-label="Close event clip" title="Close">&times;</button>
+      </header>
+
+      <div class="modal-video-frame">
+        <video id="eventVideo" controls preload="metadata"></video>
+        <div id="eventVideoError" class="empty hidden">Clip unavailable</div>
+      </div>
+
+      <div class="modal-details" aria-label="Event details">
+        <div>
+          <span class="label">Decision</span>
+          <strong id="modalDecision">-</strong>
+        </div>
+        <div>
+          <span class="label">Severity</span>
+          <strong id="modalSeverity">-</strong>
+        </div>
+        <div>
+          <span class="label">Confidence</span>
+          <strong id="modalConfidence">-</strong>
+        </div>
+        <div>
+          <span class="label">Mode</span>
+          <strong id="modalMode">-</strong>
+        </div>
+      </div>
+
+      <p id="eventModalSummary" class="modal-summary summary">No summary</p>
+    </section>
+  </div>
+
+  <div id="cameraInfoModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="cameraInfoTitle" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-close></div>
+    <section class="modal-panel">
+      <header class="modal-head">
+        <div>
+          <h2 id="cameraInfoTitle">Camera</h2>
+          <p id="cameraInfoSubtitle" class="muted">-</p>
+        </div>
+        <button id="closeCameraInfoModal" class="icon-button" type="button" aria-label="Close camera info" title="Close">&times;</button>
+      </header>
+
+      <div class="info-grid">
+        <div class="info-row">
+          <span class="label">Location</span>
+          <strong id="cameraInfoLocation">-</strong>
+        </div>
+        <div class="info-row">
+          <span class="label">Profile</span>
+          <div class="info-profile">
+            <sl-tag id="cameraInfoProfileTag" size="medium" variant="primary">-</sl-tag>
+            <p id="cameraInfoProfileDesc" class="muted"></p>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="label">Sensitivity</span>
+          <strong id="cameraInfoSensitivity">-</strong>
+        </div>
+        <div class="info-row">
+          <span class="label">Active hours</span>
+          <strong id="cameraInfoHours">-</strong>
+        </div>
+        <div class="info-row info-row-block">
+          <span class="label">What usually happens</span>
+          <ul id="cameraInfoNormal" class="info-list"></ul>
+        </div>
+        <div class="info-row info-row-block">
+          <span class="label">What we monitor</span>
+          <ul id="cameraInfoSuspicious" class="info-list"></ul>
+        </div>
+        <div class="info-row info-row-block" id="cameraInfoDescriptionRow" hidden>
+          <span class="label">Camera view</span>
+          <p id="cameraInfoDescription"></p>
+        </div>
+      </div>
+
+      <footer class="modal-foot">
+        <sl-button id="editCameraFromInfo" variant="primary">
+          <sl-icon slot="prefix" name="pencil"></sl-icon>
+          Edit this camera
+        </sl-button>
+        <sl-button data-modal-close>Close</sl-button>
+      </footer>
+    </section>
+  </div>
+
+  <sl-dialog id="deleteCameraDialog" label="Remove camera?">
+    <p>Remove camera <strong id="deleteCameraName">-</strong>? This deletes the Frigate stream and the AI policy for this camera. Recordings already on disk are kept.</p>
+    <sl-button slot="footer" id="deleteCameraCancel">Cancel</sl-button>
+    <sl-button slot="footer" id="deleteCameraConfirm" variant="danger">
+      <sl-icon slot="prefix" name="trash"></sl-icon>
+      Remove
+    </sl-button>
+  </sl-dialog>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>

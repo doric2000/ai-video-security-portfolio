@@ -1,0 +1,101 @@
+# Generated Frigate Ollama Realtime artifacts
+frigate-ollama-realtime/work/
+frigate-ollama-realtime/out/
+frigate-ollama-realtime/.venv/
+frigate-ollama-realtime/models/
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.pyo
+*.pyd
+*.pdb
+*.sqlite3
+*.db
+*.log
+*.pot
+*.mo
+*.env
+.env*
+.venv/
+venv/
+ENV/
+
+# VS Code
+.vscode/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Docker
+*.pid
+*.pid.lock
+
+# Frigate specific
+storage/
+exports/
+config/frigate.db*
+config/*.db
+config/*.db-*
+config/model_cache/*
+
+# Logs
+*.log
+logs/
+mosquitto/log/
+
+# Other
+*.bak
+*.swp
+*.tmp
+
+# Ignore secrets
+config/config.env
+
+# Ignore backup configs
+config/backup_config.yaml
+
+# Ignore unnecessary config files
+config/.exports
+config/.jwt_secret
+config/.search_stats.json
+config/.timeline
+config/.vacuum
+
+.exports
+.jwt_secret
+.search_stats.json
+.timeline
+.vacuum
+
+# Private local configuration and runtime data
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.pyc
+*.db
+*.db-*
+*.sqlite*
+*.log
+*.key
+*.pem
+*.crt
+local-data/
+storage/
+mosquitto/data/
+mosquitto/log/
+frigate-ollama-realtime/work/
+frigate-ollama-realtime/out/

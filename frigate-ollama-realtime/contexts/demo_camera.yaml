@@ -1,0 +1,22 @@
+camera_id: demo_camera
+profile: office_standard
+sensitivity: medium
+camera_view:
+  location_name: Synthetic demo room
+  description: Invented lab setting with no connection to a real workplace.
+areas_of_interest:
+  - name: Demo entrance
+    intent: Review presence outside configured demo hours.
+security_intent:
+  primary_risks: [After-hours presence, Extended loitering]
+  what_is_normal: [Brief movement in the demo area]
+  what_is_suspicious: [Prolonged presence outside demo working hours]
+notifications:
+  min_severity: 3
+  min_confidence: 0.7
+working_hours:
+  enabled: true
+  timezone: UTC
+  days: [Mon, Tue, Wed, Thu, Fri]
+  start: "09:00"
+  end: "17:00"

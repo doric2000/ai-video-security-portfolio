@@ -1,0 +1,56 @@
+# Isolated lab configuration. Supply a compatible local inference service separately.
+services:
+  frigate:
+    image: ${FRIGATE_IMAGE:-ghcr.io/blakeblackshear/frigate:stable}
+    volumes:
+      - ./config:/config
+      - ./storage:/media/frigate
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    environment:
+      FRIGATE_DEMO_RTSP_URL: ${FRIGATE_DEMO_RTSP_URL:-rtsp://127.0.0.1:8554/demo}
+    ports:
+      - "127.0.0.1:8971:8971"
+    depends_on: [mosquitto]
+  mosquitto:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:ro
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    # No host port: broker is confined to the isolated Compose network.
+  frigate-ollama-realtime:
+    build: ./frigate-ollama-realtime
+    depends_on: [frigate, mosquitto]
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+      MQTT_PREFIX: frigate
+      FRIGATE_URL: http://frigate:5000
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
+      VLLM_HOST: ${VLLM_HOST:-http://host.docker.internal:8000}
+      VLLM_VIDEO_MODEL: ${VLLM_VIDEO_MODEL:?Set a video-capable model served by your local vLLM}
+      VLLM_TEXT_MODEL: ${VLLM_TEXT_MODEL:?Set the text model served by your local vLLM}
+      USE_VLLM: ${USE_VLLM:-1}
+      VIDEO_ANALYSIS_ENABLED: "1"
+      VIDEO_FRAME_FALLBACK_ENABLED: ${VIDEO_FRAME_FALLBACK_ENABLED:-0}
+      CONTEXT_ADMIN_ENABLED: "1"
+      CONTEXT_ADMIN_HOST: 0.0.0.0
+      CONTEXT_ADMIN_PORT: "8080"
+      FRIGATE_CONFIG_PATH: /frigate-config/config.yaml
+      DEBUG: "0"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - ./frigate-ollama-realtime/contexts:/app/contexts
+      - ./frigate-ollama-realtime/profiles:/app/profiles:ro
+      - ./config:/frigate-config
+      - ./local-data/worker-work:/app/work
+      - ./local-data/worker-out:/app/out
+  security-console:
+    build: ./company-ui
+    ports:
+      - "127.0.0.1:8088:80"
+    depends_on: [frigate, frigate-ollama-realtime]

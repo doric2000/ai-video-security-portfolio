@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "note": "Illustrative payload only. No inference was run to generate this example.",
+  "camera_id": "demo_camera",
+  "event_id": "demo-event-001",
+  "decision": {
+    "severity": 3,
+    "confidence": 0.75,
+    "category": "after_hours_presence",
+    "summary": "Synthetic example of an event queued for human review."
+  }
+}

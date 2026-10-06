@@ -1,0 +1,28 @@
+# Synthetic example. Disabled until a local, authorized stream is configured.
+mqtt:
+  enabled: true
+  host: mosquitto
+  port: 1883
+  topic_prefix: frigate
+objects:
+  track: [person]
+record:
+  enabled: true
+  retain:
+    days: 0
+cameras:
+  demo_camera:
+    enabled: false
+    ffmpeg:
+      inputs:
+        - path: "{FRIGATE_DEMO_RTSP_URL}"
+          roles: [detect, record]
+    detect:
+      width: 640
+      height: 360
+      fps: 5
+    record:
+      enabled: true
+      retain:
+        days: 1
+        mode: motion

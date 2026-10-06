@@ -1,0 +1,11 @@
+profile_name: datacenter_high
+display_name: "High security (data center)"
+description: >
+  Best for data centers, server rooms, or any restricted zone where only
+  scheduled access is allowed. Alerts on after-hours presence, very short
+  loitering, and any tampering. Highest confidence threshold to make sure
+  we only flag real people, not shadows or reflections.
+working_hours_enabled: true
+min_confidence_person: 0.80
+loitering_seconds_by_sensitivity: { low: 45, medium: 20, high: 10 }
+triggers: { after_hours_presence: true, loitering: true }

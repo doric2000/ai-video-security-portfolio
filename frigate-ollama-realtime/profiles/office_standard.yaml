@@ -1,0 +1,11 @@
+profile_name: office_standard
+display_name: "Office (working hours)"
+description: >
+  Best for offices, shops, or any place that has set business hours.
+  Any person seen outside working hours is flagged as an alert. During
+  working hours, only loitering or suspicious handling near equipment
+  is reported. Balanced sensitivity — fewer false alarms.
+working_hours_enabled: true
+min_confidence_person: 0.70
+loitering_seconds_by_sensitivity: { low: 60, medium: 30, high: 15 }
+triggers: { after_hours_presence: true, loitering: true }

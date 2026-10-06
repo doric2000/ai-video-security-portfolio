@@ -1,0 +1,11 @@
+profile_name: facility_24x7
+display_name: "24/7 Facility"
+description: >
+  Best for warehouses, parking lots, or facilities open around the clock.
+  No "after-hours" concept — people are expected at any time. Alerts come
+  from loitering, suspicious handling, or unauthorized zones only.
+  Slightly more relaxed loitering thresholds since longer presence is normal.
+working_hours_enabled: false
+min_confidence_person: 0.75
+loitering_seconds_by_sensitivity: { low: 120, medium: 60, high: 30 }
+triggers: { after_hours_presence: false, loitering: true }
