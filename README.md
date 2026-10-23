@@ -51,7 +51,7 @@ See [setup and integration](docs/SETUP.md) for prerequisites, outputs, and known
 
 - Decisions depend on scene context, model capabilities, and thresholds. **Confidence values are model output, not calibrated probabilities.**
 - The repository does not publish a measured detection-accuracy, latency, or false-positive claim.
-- GPU/model support and Frigate configuration vary by version. The sample configuration was parsed and rendered; the complete hardware pipeline was not run for this publication.
+- The system this portfolio is based on, built during an R&D internship at Liacom, ran local multimodal models with vLLM and Ollama on NVIDIA GPUs (CUDA). This sanitized public copy ships no model, GPU server or footage, and its validation did not run GPU inference. GPU/model support and Frigate configuration vary by version; the sample configuration was parsed and rendered.
 - The optional frame fallback is explicitly enabled by configuration. Duplicate IDs are bounded in process memory, so a restart can allow reprocessing.
 - Prompts and video input can produce incorrect or misleading output. Human review is required for consequential action.
 

@@ -10,4 +10,4 @@ Prerequisites: Docker Compose; an authorized RTSP/test source; a compatible Frig
 
 The broker permits anonymous clients only within the isolated lab network. The console proxies Frigate's internal API and the worker's unauthenticated admin API. All externally published ports bind to loopback. A production deployment needs authentication, a protected broker, TLS, retention policy, and a dedicated model/runtime compatibility review.
 
-Validation for publication covered Python syntax, YAML parsing, Compose interpolation, privacy/secret checks, and sample data. It did not connect to a company camera or execute GPU inference.
+Validation of this public copy covered Python syntax, YAML parsing, Compose interpolation, privacy/secret checks, and sample data. It did not connect to a company camera or execute GPU inference in this public copy; the internship system itself ran vLLM and Ollama on NVIDIA GPUs (CUDA).
